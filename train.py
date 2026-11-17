@@ -11,7 +11,7 @@ torch.set_num_threads(12)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Device: {device} | Threads: {torch.get_num_threads()}")
 
-epochs = 20
+epochs = 30
 batch_size = 32
 lr = 3e-4
 
@@ -24,7 +24,7 @@ for fold in range(1, 6):
     val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False)
 
     model = MpoxCNN(input_c=3, output=len(train_ds.classes), dropout=0.3).to(device)
-
+ 
     counts = Counter([label for _, label in train_ds.dataset])
     total = sum(counts.values())
     class_weights = torch.tensor(
@@ -71,7 +71,8 @@ for fold in range(1, 6):
         train_losses.append(train_loss)
         val_losses.append(val_loss)
 
-        print(f"Epoch [{epoch+1}/{epochs}] - LR: {current_lr:.6f} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
+
+        print(f"Epoch [{epoch+1}/{epochs}] - Learning Rate: {current_lr:.6f} | Training Loss: {train_loss:.4f} | Validation Loss: {val_loss:.4f}")
 
         if val_loss < best_val_loss:
             best_val_loss = val_loss

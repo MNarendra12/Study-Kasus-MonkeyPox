@@ -1,4 +1,3 @@
-# algo 2 ubah dari simple cnn
 import torch
 import torch.nn as nn
 
