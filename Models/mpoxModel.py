@@ -1,5 +1,7 @@
+# algo 2 ubah dari simple cnn
 import torch
 import torch.nn as nn
+
 
 class MpoxCNN(nn.Module):
     def __init__(self, input_c=3, output=6, dropout=0.5):
