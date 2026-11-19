@@ -1,0 +1,50 @@
+{
+    "Chickenpox": {
+        "orig_train": 50,
+        "aug_train": 700,
+        "total_train": 750,
+        "valid": 16,
+        "test": 9,
+        "total_all": 775
+    },
+    "Cowpox": {
+        "orig_train": 49,
+        "aug_train": 686,
+        "total_train": 735,
+        "valid": 10,
+        "test": 7,
+        "total_all": 752
+    },
+    "HFMD": {
+        "orig_train": 116,
+        "aug_train": 1624,
+        "total_train": 1740,
+        "valid": 29,
+        "test": 16,
+        "total_all": 1785
+    },
+    "Healthy": {
+        "orig_train": 83,
+        "aug_train": 1162,
+        "total_train": 1245,
+        "valid": 22,
+        "test": 9,
+        "total_all": 1276
+    },
+    "Measles": {
+        "orig_train": 37,
+        "aug_train": 518,
+        "total_train": 555,
+        "valid": 12,
+        "test": 6,
+        "total_all": 573
+    },
+    "Monkeypox": {
+        "orig_train": 202,
+        "aug_train": 2828,
+        "total_train": 3030,
+        "valid": 55,
+        "test": 27,
+        "total_all": 3112
+    }
+}

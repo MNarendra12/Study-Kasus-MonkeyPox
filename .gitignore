@@ -3,4 +3,5 @@ __pycache__/
 *.pyc
 Augmented Images/
 Original Images/
-Results/**/*.pt
+*.pt
+*.pth

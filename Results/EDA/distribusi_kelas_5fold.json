@@ -1,0 +1,252 @@
+{
+    "fold_1": {
+        "Chickenpox": {
+            "orig_train": 50,
+            "aug_train": 700,
+            "total_train": 750,
+            "valid": 16,
+            "test": 9,
+            "total_all": 775
+        },
+        "Cowpox": {
+            "orig_train": 49,
+            "aug_train": 686,
+            "total_train": 735,
+            "valid": 10,
+            "test": 7,
+            "total_all": 752
+        },
+        "HFMD": {
+            "orig_train": 116,
+            "aug_train": 1624,
+            "total_train": 1740,
+            "valid": 29,
+            "test": 16,
+            "total_all": 1785
+        },
+        "Healthy": {
+            "orig_train": 83,
+            "aug_train": 1162,
+            "total_train": 1245,
+            "valid": 22,
+            "test": 9,
+            "total_all": 1276
+        },
+        "Measles": {
+            "orig_train": 37,
+            "aug_train": 518,
+            "total_train": 555,
+            "valid": 12,
+            "test": 6,
+            "total_all": 573
+        },
+        "Monkeypox": {
+            "orig_train": 202,
+            "aug_train": 2828,
+            "total_train": 3030,
+            "valid": 55,
+            "test": 27,
+            "total_all": 3112
+        }
+    },
+    "fold_2": {
+        "Chickenpox": {
+            "orig_train": 51,
+            "aug_train": 714,
+            "total_train": 765,
+            "valid": 13,
+            "test": 11,
+            "total_all": 789
+        },
+        "Cowpox": {
+            "orig_train": 47,
+            "aug_train": 658,
+            "total_train": 705,
+            "valid": 15,
+            "test": 4,
+            "total_all": 724
+        },
+        "HFMD": {
+            "orig_train": 109,
+            "aug_train": 1526,
+            "total_train": 1635,
+            "valid": 32,
+            "test": 20,
+            "total_all": 1687
+        },
+        "Healthy": {
+            "orig_train": 80,
+            "aug_train": 1120,
+            "total_train": 1200,
+            "valid": 23,
+            "test": 11,
+            "total_all": 1234
+        },
+        "Measles": {
+            "orig_train": 40,
+            "aug_train": 560,
+            "total_train": 600,
+            "valid": 10,
+            "test": 5,
+            "total_all": 615
+        },
+        "Monkeypox": {
+            "orig_train": 182,
+            "aug_train": 2548,
+            "total_train": 2730,
+            "valid": 71,
+            "test": 31,
+            "total_all": 2832
+        }
+    },
+    "fold_3": {
+        "Chickenpox": {
+            "orig_train": 51,
+            "aug_train": 714,
+            "total_train": 765,
+            "valid": 18,
+            "test": 6,
+            "total_all": 789
+        },
+        "Cowpox": {
+            "orig_train": 47,
+            "aug_train": 658,
+            "total_train": 705,
+            "valid": 15,
+            "test": 4,
+            "total_all": 724
+        },
+        "HFMD": {
+            "orig_train": 114,
+            "aug_train": 1596,
+            "total_train": 1710,
+            "valid": 31,
+            "test": 16,
+            "total_all": 1757
+        },
+        "Healthy": {
+            "orig_train": 75,
+            "aug_train": 1050,
+            "total_train": 1125,
+            "valid": 28,
+            "test": 11,
+            "total_all": 1164
+        },
+        "Measles": {
+            "orig_train": 36,
+            "aug_train": 504,
+            "total_train": 540,
+            "valid": 14,
+            "test": 5,
+            "total_all": 559
+        },
+        "Monkeypox": {
+            "orig_train": 215,
+            "aug_train": 3010,
+            "total_train": 3225,
+            "valid": 47,
+            "test": 22,
+            "total_all": 3294
+        }
+    },
+    "fold_4": {
+        "Chickenpox": {
+            "orig_train": 52,
+            "aug_train": 728,
+            "total_train": 780,
+            "valid": 14,
+            "test": 9,
+            "total_all": 803
+        },
+        "Cowpox": {
+            "orig_train": 44,
+            "aug_train": 616,
+            "total_train": 660,
+            "valid": 9,
+            "test": 13,
+            "total_all": 682
+        },
+        "HFMD": {
+            "orig_train": 115,
+            "aug_train": 1610,
+            "total_train": 1725,
+            "valid": 31,
+            "test": 15,
+            "total_all": 1771
+        },
+        "Healthy": {
+            "orig_train": 83,
+            "aug_train": 1162,
+            "total_train": 1245,
+            "valid": 22,
+            "test": 9,
+            "total_all": 1276
+        },
+        "Measles": {
+            "orig_train": 36,
+            "aug_train": 504,
+            "total_train": 540,
+            "valid": 11,
+            "test": 8,
+            "total_all": 559
+        },
+        "Monkeypox": {
+            "orig_train": 194,
+            "aug_train": 2716,
+            "total_train": 2910,
+            "valid": 63,
+            "test": 27,
+            "total_all": 3000
+        }
+    },
+    "fold_5": {
+        "Chickenpox": {
+            "orig_train": 53,
+            "aug_train": 742,
+            "total_train": 795,
+            "valid": 15,
+            "test": 7,
+            "total_all": 817
+        },
+        "Cowpox": {
+            "orig_train": 43,
+            "aug_train": 602,
+            "total_train": 645,
+            "valid": 16,
+            "test": 7,
+            "total_all": 668
+        },
+        "HFMD": {
+            "orig_train": 109,
+            "aug_train": 1526,
+            "total_train": 1635,
+            "valid": 37,
+            "test": 15,
+            "total_all": 1687
+        },
+        "Healthy": {
+            "orig_train": 83,
+            "aug_train": 1162,
+            "total_train": 1245,
+            "valid": 21,
+            "test": 10,
+            "total_all": 1276
+        },
+        "Measles": {
+            "orig_train": 38,
+            "aug_train": 532,
+            "total_train": 570,
+            "valid": 11,
+            "test": 6,
+            "total_all": 587
+        },
+        "Monkeypox": {
+            "orig_train": 212,
+            "aug_train": 2968,
+            "total_train": 3180,
+            "valid": 54,
+            "test": 18,
+            "total_all": 3252
+        }
+    }
+}
