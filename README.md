@@ -18,11 +18,11 @@ Dataset terdiri dari citra asli (`Original Images`) dan citra hasil augmentasi (
 | **Monkeypox** | 202 | 2.828 | 3.030 | 55 | 27 | 3.112 |
 | **TOTAL** | **537** | **7.518** | **8.055** | **144** | **74** | **8.273** |
 
-![Distribusi Dataset per Kelas](Results\EDA\distribusi_kelas_semua_fold.png)
+![Distribusi Dataset per Kelas](Results/EDA/distribusi_kelas_semua_fold.png)
 
 ### Temuan Utama Distribusi Data:
-* **Ketidakseimbangan Kelas (*Class Imbalance*)**: Dataset memiliki distribusi yang tidak seimbang antar kelas. Kelas **Monkeypox** merupakan kelas mayoritas dengan **3.112** citra (`37,6%` dari total data, 202 citra asli), diikuti oleh **HFMD** dengan **1.785** citra (`21,6%`). Sebaliknya, **Measles** merupakan kelas minoritas dengan hanya **573** citra (`6,9%`, 37 citra asli), disusul **Cowpox** (**752** citra) dan **Chickenpox** (**775** citra)—rasio perbandingan antara kelas terbanyak (*Monkeypox*) dan tersedikit (*Measles*) mencapai sekitar **5,4 : 1**.
-* **Ukuran Sampel Evaluasi**: Karena partisi `Valid` (144 citra) dan `Test` (74 citra) hanya memakai citra asli tanpa augmentasi, beberapa kelas minoritas memiliki jumlah sampel uji yang sangat kecil (seperti *Measles* 6 gambar dan *Cowpox* 7 gambar per fold), sehingga skema **5-Fold Cross-Validation** sangat krusial agar seluruh sampel asli teruji secara merata.
+- **Ketidakseimbangan Kelas (*Class Imbalance*)**: Dataset memiliki distribusi yang tidak seimbang antar kelas. Kelas **Monkeypox** merupakan kelas mayoritas dengan **3.112** citra (`37,6%` dari total data, 202 citra asli), diikuti oleh **HFMD** dengan **1.785** citra (`21,6%`). Sebaliknya, **Measles** merupakan kelas minoritas dengan hanya **573** citra (`6,9%`, 37 citra asli), disusul **Cowpox** (**752** citra) dan **Chickenpox** (**775** citra)—rasio perbandingan antara kelas terbanyak (*Monkeypox*) dan tersedikit (*Measles*) mencapai sekitar **5,4 : 1**.
+- **Ukuran Sampel Evaluasi**: Karena partisi `Valid` (144 citra) dan `Test` (74 citra) hanya memakai citra asli tanpa augmentasi, beberapa kelas minoritas memiliki jumlah sampel uji yang sangat kecil (seperti *Measles* 6 gambar dan *Cowpox* 7 gambar per fold), sehingga skema **5-Fold Cross-Validation** sangat krusial agar seluruh sampel asli teruji secara merata.
 
 ---
 
@@ -79,7 +79,6 @@ Dataset terdiri dari citra asli (`Original Images`) dan citra hasil augmentasi (
 ![Confusion Matrix Model 1](Results/model1/model1_confusion_matrix.png)
 
 #### Grafik Kurva Training & Validation — Model 1
-
 ![Kurva Training & Validasi 5-Fold Model 1](Results/model1/model1_kurva_5fold.png)
 
 ---
@@ -168,14 +167,19 @@ Project/
 │   └── getData.py
 ├── Results/
 │   ├── EDA/distribusi_kelas_semua_fold.png
-│   ├── model1\model1_kurva_5fold.png
-│   ├── model2\model2_kurva_5fold.png
-│   ├── model3\model3_kurva_5fold.png
+│   ├── model1/
+│   │   ├── model1_confusion_matrix.png
+│   │   └── model1_kurva_5fold.png
+│   ├── model2/
+│   │   ├── model2_confusion_matrix.png
+│   │   └── model2_kurva_5fold.png
+│   ├── model3/
+│   │   ├── model3_confusion_matrix.png
+│   │   └── model3_kurva_5fold.png
 │   ├── perbandingan_model.png
 │   └── test_evaluation_summary.json
 ├── cek_data.py
 ├── EDA.py
-├── perbandingan_model
 ├── train.py
 ├── test.py
 └── requirements.txt
