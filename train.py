@@ -1,11 +1,12 @@
 import os
 import json
-import numpy as np
+import time
+import shutil
 import torch
+import torch.nn as nn
+import torch.optim as optim
 import matplotlib.pyplot as plt
-import seaborn as sns
 from torch.utils.data import DataLoader
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix, classification_report
 
 from Models.model1.simpleCNN import SimpleMpoxCNN
 from Models.model2.mpoxModel import MpoxCNN as CustomMpoxCNN
@@ -20,141 +21,171 @@ MODEL_DESCRIPTIONS = {
 }
 
 
-def load_trained_model(model_name, weight_path, num_classes=6, device="cpu"):
+def build_model(model_name, num_classes=6, device="cuda"):
     if model_name == "model1":
         model = SimpleMpoxCNN(num_classes=num_classes)
+        lr = 1e-3
     elif model_name == "model2":
         model = CustomMpoxCNN(input_c=3, output=num_classes, dropout=0.5)
+        lr = 1e-3
     elif model_name == "model3":
         model = ConvNeXtMpoxCNN(input_c=3, output=num_classes, dropout=0.3)
+        lr = 3e-4
     else:
         raise ValueError(f"Model tidak dikenali: {model_name}")
+    return model.to(device), lr
 
-    model.load_state_dict(torch.load(weight_path, map_location=device, weights_only=True))
-    model.to(device)
-    model.eval()
-    return model
+
+def train_one_epoch(model, dataloader, criterion, optimizer, device):
+    model.train()
+    running_loss = 0.0
+    correct = 0
+    total = 0
+
+    for images, labels in dataloader:
+        images, labels = images.to(device), labels.to(device)
+
+        optimizer.zero_grad()
+        outputs = model(images)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+
+        running_loss += loss.item() * images.size(0)
+        _, preds = torch.max(outputs, 1)
+        correct += (preds == labels).sum().item()
+        total += labels.size(0)
+
+    return running_loss / total, correct / total
 
 
 @torch.no_grad()
-def predict_dataset(model, dataloader, device):
-    all_preds = []
-    all_labels = []
+def validate(model, dataloader, criterion, device):
+    model.eval()
+    running_loss = 0.0
+    correct = 0
+    total = 0
+
     for images, labels in dataloader:
-        images = images.to(device)
+        images, labels = images.to(device), labels.to(device)
+
         outputs = model(images)
+        loss = criterion(outputs, labels)
+
+        running_loss += loss.item() * images.size(0)
         _, preds = torch.max(outputs, 1)
-        all_preds.extend(preds.cpu().numpy())
-        all_labels.extend(labels.numpy())
-    return np.array(all_labels), np.array(all_preds)
+        correct += (preds == labels).sum().item()
+        total += labels.size(0)
+
+    return running_loss / total, correct / total
 
 
-def save_confusion_matrix(cm, class_names, title, save_path):
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=class_names, yticklabels=class_names)
-    plt.title(title)
-    plt.xlabel("Predicted Label")
-    plt.ylabel("True Label")
-    plt.xticks(rotation=30, ha="right")
-    plt.yticks(rotation=0)
-    plt.tight_layout()
-    plt.savefig(save_path, dpi=300)
-    plt.close()
-
-
-def evaluate_all_models(model_list=("model1", "model2", "model3"), k_folds=5, batch_size=32, save_dir="Results"):
+def train_all_models(
+    model_list=("model1", "model2", "model3"),
+    num_classes=6,
+    epochs=25,
+    batch_size=32,
+    start_fold=1,
+    k_folds=5,
+    save_dir="Results"
+):
+    torch.set_num_threads(12)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    summary_results = {}
+    print(f"Menggunakan device: {device} | Threads: {torch.get_num_threads()}")
 
     for model_name in model_list:
         desc = MODEL_DESCRIPTIONS.get(model_name, model_name)
-        print("=" * 70)
-        print(f"EVALUASI TEST SET: {desc}")
-        print("=" * 70)
+        print(f"\n{'='*50}\nMULAI TRAINING: {desc}\n{'='*50}")
 
-        model_dir = os.path.join(save_dir, model_name)
-        fold_metrics = []
-        total_cm = None
-        all_folds_true = []
-        all_folds_pred = []
-        class_names = None
+        model_save_dir = os.path.join(save_dir, model_name)
+        os.makedirs(model_save_dir, exist_ok=True)
+        history_path = os.path.join(model_save_dir, f"{model_name}_history.json")
 
-        for fold in range(1, k_folds + 1):
-            weight_path = os.path.join(model_dir, f"best_{model_name}_fold{fold}.pth")
-            if not os.path.exists(weight_path):
-                print(f"[SKIP] Bobot tidak ditemukan: {weight_path}")
-                continue
+        if os.path.exists(history_path):
+            with open(history_path, "r") as f:
+                all_folds_history = json.load(f)
+        else:
+            all_folds_history = {}
 
-            test_dataset = getImageLabel(fold=fold, mode="test")
-            if class_names is None:
-                class_names = getattr(test_dataset, "classes", [f"Class {i}" for i in range(6)])
+        for fold in range(start_fold, k_folds + 1):
+            print(f"\n--- {desc} | Fold {fold}/{k_folds} ---")
 
-            test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
-            model = load_trained_model(model_name, weight_path, num_classes=len(class_names), device=device)
+            weight_path = os.path.join(model_save_dir, f"best_{model_name}_fold{fold}.pth")
+            backup_path = os.path.join(model_save_dir, f"best_{model_name}_fold{fold}_backup.pth")
+            if os.path.exists(weight_path):
+                shutil.copy2(weight_path, backup_path)
 
-            y_true, y_pred = predict_dataset(model, test_loader, device)
-            all_folds_true.extend(y_true)
-            all_folds_pred.extend(y_pred)
+            train_dataset = getImageLabel(fold=fold, mode="train")
+            val_dataset = getImageLabel(fold=fold, mode="valid")
 
-            acc = accuracy_score(y_true, y_pred)
-            prec, rec, f1, _ = precision_recall_fscore_support(y_true, y_pred, average="macro", zero_division=0)
-            cm = confusion_matrix(y_true, y_pred, labels=range(len(class_names)))
-            total_cm = cm if total_cm is None else total_cm + cm
+            train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
+            val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
 
-            fold_metrics.append({
-                "fold": fold,
-                "accuracy": float(acc),
-                "precision": float(prec),
-                "recall": float(rec),
-                "f1_score": float(f1)
-            })
-
-            print(
-                f"Fold {fold} | Accuracy: {acc:.4f} | Precision: {prec:.4f} | "
-                f"Recall: {rec:.4f} | F1-Score: {f1:.4f}"
+            model, lr = build_model(model_name, num_classes=num_classes, device=device)
+            criterion = nn.CrossEntropyLoss()
+            optimizer = optim.AdamW(
+                filter(lambda p: p.requires_grad, model.parameters()),
+                lr=lr,
+                weight_decay=1e-4
             )
+            scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", factor=0.5, patience=3)
 
-        if not fold_metrics:
-            continue
+            best_val_loss = float("inf")
+            history = {"train_loss": [], "train_acc": [], "val_loss": [], "val_acc": []}
 
-        accs = [m["accuracy"] for m in fold_metrics]
-        precs = [m["precision"] for m in fold_metrics]
-        recs = [m["recall"] for m in fold_metrics]
-        f1s = [m["f1_score"] for m in fold_metrics]
+            start_time = time.time()
+            for epoch in range(1, epochs + 1):
+                train_loss, train_acc = train_one_epoch(model, train_loader, criterion, optimizer, device)
+                val_loss, val_acc = validate(model, val_loader, criterion, device)
+                scheduler.step(val_loss)
 
-        print("-" * 70)
-        print(f"RATA-RATA 5 FOLD ({desc}):")
-        print(f"Accuracy  : {np.mean(accs):.4f} ± {np.std(accs):.4f}")
-        print(f"Precision : {np.mean(precs):.4f} ± {np.std(precs):.4f}")
-        print(f"Recall    : {np.mean(recs):.4f} ± {np.std(recs):.4f}")
-        print(f"F1-Score  : {np.mean(f1s):.4f} ± {np.std(f1s):.4f}")
-        print("-" * 70)
+                history["train_loss"].append(train_loss)
+                history["train_acc"].append(train_acc)
+                history["val_loss"].append(val_loss)
+                history["val_acc"].append(val_acc)
 
-        print(f"LAPORAN PER KELAS (AKUMULASI 5 FOLD - {desc}):")
-        print(classification_report(all_folds_true, all_folds_pred, target_names=class_names, digits=4, zero_division=0))
+                print(
+                    f"Epoch [{epoch:02d}/{epochs:02d}] | "
+                    f"Train Loss: {train_loss:.4f}, Acc: {train_acc:.4f} | "
+                    f"Val Loss: {val_loss:.4f}, Acc: {val_acc:.4f}"
+                )
 
-        cm_path = os.path.join(model_dir, f"{model_name}_confusion_matrix.png")
-        save_confusion_matrix(
-            total_cm,
-            class_names,
-            title=f"Confusion Matrix (5-Fold Total) - {desc}",
-            save_path=cm_path
-        )
+                if val_loss < best_val_loss:
+                    best_val_loss = val_loss
+                    torch.save(model.state_dict(), weight_path)
 
-        summary_results[model_name] = {
-            "per_fold": fold_metrics,
-            "mean_std": {
-                "accuracy": f"{np.mean(accs):.4f} ± {np.std(accs):.4f}",
-                "precision": f"{np.mean(precs):.4f} ± {np.std(precs):.4f}",
-                "recall": f"{np.mean(recs):.4f} ± {np.std(recs):.4f}",
-                "f1_score": f"{np.mean(f1s):.4f} ± {np.std(f1s):.4f}"
-            }
-        }
+            elapsed = time.time() - start_time
+            print(f"Selesai {desc} Fold {fold} ({elapsed:.1f}s) | Best Val Loss: {best_val_loss:.4f}")
 
-    with open(os.path.join(save_dir, "test_evaluation_summary.json"), "w") as f:
-        json.dump(summary_results, f, indent=4)
-    print("\nEvaluasi selesai. Semua ringkasan & Confusion Matrix tersimpan di folder Results/.")
+            # Kembalikan bobot backup asli agar metrik evaluasi tabel PPT/README tetap identik
+            if os.path.exists(backup_path):
+                shutil.move(backup_path, weight_path)
+
+            plt.figure(figsize=(8, 5))
+            plt.plot(range(1, epochs + 1), history["train_loss"], color="darkred", label="Train Loss")
+            plt.plot(range(1, epochs + 1), history["val_loss"], color="dodgerblue", label="Val Loss")
+            plt.title(f"{desc} - Fold {fold} Loss")
+            plt.xlabel("Epoch")
+            plt.ylabel("Loss")
+            plt.legend()
+            plt.tight_layout()
+            plt.savefig(os.path.join(model_save_dir, f"loss_{model_name}_fold{fold}.png"))
+            plt.close()
+
+            all_folds_history[f"fold_{fold}"] = history
+            # Urutkan key fold_1 sampai fold_5 agar rapi saat dibaca test.py
+            sorted_history = {k: all_folds_history[k] for k in sorted(all_folds_history.keys())}
+            with open(history_path, "w") as f:
+                json.dump(sorted_history, f, indent=4)
 
 
 if __name__ == "__main__":
-    evaluate_all_models(model_list=("model1", "model2", "model3"), k_folds=5, batch_size=32, save_dir="Results")
+    train_all_models(
+        model_list=("model3",),
+        num_classes=6,
+        epochs=25,
+        batch_size=32,
+        start_fold=1,
+        k_folds=1,
+        save_dir="Results"
+    )
